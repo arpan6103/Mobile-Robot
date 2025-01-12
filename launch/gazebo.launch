@@ -1,0 +1,19 @@
+<?xml version="1.0"?>
+<launch>
+
+    <param name="robot_description" command="xacro '$(find mobile_robot)/urdf/rover.urdf.xacro'"/>
+
+    <node pkg="robot_state_publisher" type="robot_state_publisher" name="robot_state_publisher"/>
+
+    <include file="$(find gazebo_ros)/launch/empty_world.launch">
+        <!-- <arg name="world_name" value='$(find divi_bot)/worlds/obstacle.world'/>
+        <arg name="paused" value='false'/>
+        <arg name="use_sim_time" value='true'/>
+        <arg name="gui" value='true'/>
+        <arg name="headless" value='false'/>
+        <arg name="debug" value='false'/> -->
+    </include>
+
+    <node pkg="gazebo_ros" type="spawn_model" name="gazebo_ros" args='-urdf -model rover -param robot_description'/>
+
+</launch>

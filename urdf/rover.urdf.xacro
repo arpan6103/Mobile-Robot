@@ -1,0 +1,94 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro" name="rover">
+    
+    <link name="base_footprint"/> <!-- Added base_footprint link -->
+    
+
+    <xacro:property name="constant"     value='1/12'  />
+    <xacro:property name="mass"         value='1.0'   />
+    <xacro:property name="width"        value='0.8' />
+    <xacro:property name="height"       value='0.1'   />
+    <xacro:property name="depth"        value='0.7 '  />
+
+
+    <link name="base_link">
+        <visual>
+            <geometry>
+                <box size="0.8 0.7 0.07" />
+            </geometry>
+            <material name="BaseColor">
+                <color rgba="0.8 0.8 0.8 1.0"/>
+            </material>
+        </visual>
+        <collision>
+            <geometry>
+                <box size="1.0 1.0 1.0" />
+            </geometry>
+        </collision>
+        <inertial>
+            <mass value="1.0"/>
+            <origin xyz="0.0 0.0 0.0" rpy="0.0 0.0 0.0"/>
+            <inertia ixx="${mass/12 * (height*height + depth*depth)}" ixy="0.0" 
+                     ixz="0.0" iyy="0.0" 
+                     iyz="0.0" izz="0.0"/>
+        </inertial>
+    </link>
+
+    <joint name="base_joint" type="fixed">
+        <parent link="base_footprint"/>
+        <child link="base_link"/>
+        <axis xyz ="0 0 0"/>
+        <origin xyz="0 0 0" rpy="0 0 0"/>
+    </joint>
+
+    <xacro:include filename="camera.xacro"/>
+
+    <!-- Wheel Creation using xacro -->
+
+    <xacro:macro name="wheel" params="name x y mesh">
+        <link name="wheel_${name}_link">
+            <visual>
+                <geometry>
+                    <mesh filename="package://mobile_robot/meshes/${mesh}" scale="0.005 0.005 0.005"/>
+                </geometry>
+                <material name="WheelColor">
+                    <color rgba="0.1 0.1 0.1 1.0"/>
+                </material>
+            </visual>
+            <collision>
+                <geometry>
+                    <cylinder radius="0.15" length="0.1"/>
+                </geometry>
+            </collision>
+            <inertial>
+                <mass value="0.5"/>
+                <origin xyz="0.0 0.0 0.0" rpy="0.0 0.0 0.0"/>
+                <inertia ixx="0.0" ixy="0.0" ixz="0.0" iyy="0.0" iyz="0.0" izz="0.0"/>
+            </inertial>
+        </link>
+
+        <joint name="wheel_${name}_joint" type="continuous">
+            <parent link="base_link"/>
+            <child link="wheel_${name}_link"/>
+            <axis xyz ="0 0 1"/>
+            <origin xyz="${x} ${y} 0.0" rpy="0 0 0"/>
+        </joint>
+    </xacro:macro>
+
+
+    <xacro:wheel name='front_left' x='0.250' y='0.40' mesh='left_tyre.stl' />
+    <xacro:wheel name='front_right' x='0.250' y='-0.40' mesh='right_tyre.stl' />
+    <xacro:wheel name='rear_left' x='-0.250' y='0.40' mesh='left_tyre.stl' />
+    <xacro:wheel name='rear_right' x='-0.250' y='-0.40' mesh='right_tyre.stl' />
+
+    <gazebo>
+        <plugin name="object_controller" filename="libgazebo_ros_planar_move.so">
+        <commandTopic>cmd_vel</commandTopic>
+        <odometryTopic>odom</odometryTopic>
+        <odometryFrame>odom</odometryFrame>
+        <odometryRate>20.0</odometryRate>
+        <robotBaseFrame>base_footprint</robotBaseFrame>
+        </plugin>
+    </gazebo>
+
+</robot>

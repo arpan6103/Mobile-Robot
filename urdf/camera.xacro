@@ -1,0 +1,54 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro" name="robot_name">
+    <!-- Camera link -->
+    <link name="camera_link">
+        <visual>
+            <geometry>
+                <box size="0.1 0.1 0.1"/>
+            </geometry>
+        </visual>
+    </link>
+
+    <!-- Joint connecting base_link to camera_link -->
+    <joint name="camera_joint" type="fixed">
+        <parent link="base_link"/>
+        <child link="camera_link"/>
+        <origin xyz="0.0 0 0.1" rpy="0 0 0"/>
+    </joint>
+
+    <!-- Optical frame -->
+    <link name="camera_link_optical"></link>
+
+    <joint name="camera_optical_joint" type="fixed">
+        <parent link="camera_link"/>
+        <child link="camera_link_optical"/>
+        <origin xyz="0.0 0 0.0" rpy="1.57 0 1.57"/>
+    </joint>
+
+    <!-- camera -->
+    <gazebo reference="camera_link">
+        <sensor type="camera" name="camera1">
+            <update_rate>30.0</update_rate>
+            <visualize>true</visualize>
+            <camera name="head">
+                <horizontal_fov>1.004</horizontal_fov>
+                <image>
+                    <width>640</width>
+                    <height>480</height>
+                    <format>R8G8B8</format>
+                </image>
+                <clip>
+                    <near>0.02</near>
+                    <far>10</far>
+                </clip>
+            </camera>
+            <plugin name="camera_controller" filename="libgazebo_ros_camera.so">
+                <frameName>camera_link_optical</frameName>
+                <alwaysOn>true</alwaysOn>
+                <updateRate>0.0</updateRate>
+                <cameraName>rrbot/camera1</cameraName>
+                <imageTopicName>image_raw</imageTopicName>
+            </plugin>
+        </sensor>
+    </gazebo>
+</robot>
